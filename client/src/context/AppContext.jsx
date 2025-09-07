@@ -143,7 +143,7 @@ useEffect(()=>{
  if (user) {
   updateCart()
  }
-},[cartItems, user])
+},[cartItems])
   const value = {
     axios,
     getCartCount,
