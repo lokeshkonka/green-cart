@@ -16,7 +16,7 @@ const app = express();
 const port = process.env.PORT || 3000;
 
 // ✅ Correct localhost origin
-const allowedOrigins = ["http://localhost:5173","https://green-cart-rouge.vercel.app"];
+const allowedOrigins = ["http://localhost:5173","https://green-cart-rouge.vercel.app/"];
 
 // Middleware
 app.use(express.json());
