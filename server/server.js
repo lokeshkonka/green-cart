@@ -1,26 +1,41 @@
-import cookieParser from 'cookie-parser';
-import express from 'express';
-import cors from 'cors';
-import connectDB from './configs/db.js';
-import 'dotenv/config';
-import userRouter from './Routes/userRoute.js';
-import sellerRouter from './Routes/sellerRoute.js';
-import connectCloudinary from './configs/cloudinary.js';
-import ProductRouter from './Routes/ProductRoute.js';
-import cartRouter from './Routes/CartRoute.js';
-import addressRouter from './Routes/AddressRoute.js';
-import orderRouter from './Routes/OrderRoute.js';
-import { stripeWebHook } from './Controllers/OrderController.js';
+import cookieParser from "cookie-parser";
+import express from "express";
+import cors from "cors";
+import connectDB from "./configs/db.js";
+import "dotenv/config";
+import userRouter from "./Routes/userRoute.js";
+import sellerRouter from "./Routes/sellerRoute.js";
+import connectCloudinary from "./configs/cloudinary.js";
+import ProductRouter from "./Routes/ProductRoute.js";
+import cartRouter from "./Routes/CartRoute.js";
+import addressRouter from "./Routes/AddressRoute.js";
+import orderRouter from "./Routes/OrderRoute.js";
+import { stripeWebHook } from "./Controllers/OrderController.js";
 
 const app = express();
 const port = process.env.PORT || 3000;
 
-// ✅ Correct localhost origin
-const allowedOrigins = ["https://green-cart-virid.vercel.app"];
+const allowedOrigins = [
+  "http://localhost:5173",
+  process.env.FRONTEND_URL,
+];
 
-// Middleware
+/* =========================
+   STRIPE WEBHOOK (RAW BODY)
+   MUST BE FIRST
+========================= */
+app.post(
+  "/api/order/webhook",
+  express.raw({ type: "application/json" }),
+  stripeWebHook
+);
+
+/* =========================
+   NORMAL MIDDLEWARE
+========================= */
 app.use(express.json());
 app.use(cookieParser());
+
 app.use(
   cors({
     origin: function (origin, callback) {
@@ -34,17 +49,27 @@ app.use(
   })
 );
 
+/* =========================
+   INIT SERVICES
+========================= */
 await connectDB();
 await connectCloudinary();
-app.post('/stripe',express.raw({type:'application/json'}),stripeWebHook)
 
-app.get('/', (req, res) => res.send("API IS WORKING"));
+/* =========================
+   ROUTES
+========================= */
+app.get("/", (req, res) => res.send("API IS WORKING"));
 
-app.use('/api/user', userRouter);
-app.use('/api/seller', sellerRouter);
-app.use('/api/product', ProductRouter);
-app.use('/api/cart', cartRouter);
-app.use('/api/address', addressRouter);
-app.use('/api/order', orderRouter);
+app.use("/api/user", userRouter);
+app.use("/api/seller", sellerRouter);
+app.use("/api/product", ProductRouter);
+app.use("/api/cart", cartRouter);
+app.use("/api/address", addressRouter);
+app.use("/api/order", orderRouter);
 
-app.listen(port, () => console.log(`🚀 SERVER IS RUNNING ON ${port}`));
+/* =========================
+   SERVER
+========================= */
+app.listen(port, () =>
+  console.log(`🚀 SERVER IS RUNNING ON ${port}`)
+);

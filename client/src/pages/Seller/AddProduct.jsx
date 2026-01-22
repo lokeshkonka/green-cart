@@ -4,7 +4,7 @@ import { useAppContext } from "../../context/AppContext.jsx";
 import toast from "react-hot-toast";
 
 const AddProduct = () => {
-  const { axios } = useAppContext(); // ✅ use hook at top level
+  const { axios } = useAppContext();
 
   const [Files, SetFiles] = useState([]);
   const [name, SetName] = useState("");
@@ -12,9 +12,12 @@ const AddProduct = () => {
   const [category, SetCategory] = useState("");
   const [price, SetPrice] = useState("");
   const [offerPrice, SetOfferPrice] = useState("");
+  const [loading, setLoading] = useState(false); // ✅ loader state
 
   const onSubmitHandler = async (event) => {
     event.preventDefault();
+    setLoading(true); // ✅ start loader
+
     try {
       const productData = {
         name,
@@ -37,7 +40,7 @@ const AddProduct = () => {
 
       if (data.success) {
         toast.success(data.message);
-        // Reset all fields
+
         SetName("");
         SetDescription("");
         SetCategory("");
@@ -50,6 +53,8 @@ const AddProduct = () => {
     } catch (error) {
       console.error("❌ Error in ADD Product API:", error);
       toast.error(error.response?.data?.message || error.message);
+    } finally {
+      setLoading(false); // ✅ stop loader after toast path
     }
   };
 
@@ -95,13 +100,10 @@ const AddProduct = () => {
 
         {/* Product Name */}
         <div className="flex flex-col gap-1 max-w-md">
-          <label className="text-base font-medium" htmlFor="product-name">
-            Product Name
-          </label>
+          <label className="text-base font-medium">Product Name</label>
           <input
             onChange={(e) => SetName(e.target.value)}
             value={name}
-            id="product-name"
             type="text"
             placeholder="Type here"
             className="outline-none md:py-2.5 py-2 px-3 rounded border border-gray-500/40"
@@ -111,31 +113,24 @@ const AddProduct = () => {
 
         {/* Product Description */}
         <div className="flex flex-col gap-1 max-w-md">
-          <label
-            className="text-base font-medium"
-            htmlFor="product-description"
-          >
+          <label className="text-base font-medium">
             Product Description
           </label>
           <textarea
             onChange={(e) => SetDescription(e.target.value)}
             value={description}
-            id="product-description"
             rows={4}
             className="outline-none md:py-2.5 py-2 px-3 rounded border border-gray-500/40 resize-none"
             placeholder="Type here"
-          ></textarea>
+          />
         </div>
 
         {/* Category */}
-        <div className="w-full flex flex-col gap-1">
-          <label className="text-base font-medium" htmlFor="category">
-            Category
-          </label>
+        <div className="flex flex-col gap-1">
+          <label className="text-base font-medium">Category</label>
           <select
             onChange={(e) => SetCategory(e.target.value)}
             value={category}
-            id="category"
             className="outline-none md:py-2.5 py-2 px-3 rounded border border-gray-500/40"
           >
             <option value="">Select Category</option>
@@ -150,13 +145,10 @@ const AddProduct = () => {
         {/* Prices */}
         <div className="flex items-center gap-5 flex-wrap">
           <div className="flex-1 flex flex-col gap-1 w-32">
-            <label className="text-base font-medium" htmlFor="product-price">
-              Product Price
-            </label>
+            <label className="text-base font-medium">Product Price</label>
             <input
               onChange={(e) => SetPrice(e.target.value)}
               value={price}
-              id="product-price"
               type="number"
               placeholder="0"
               className="outline-none md:py-2.5 py-2 px-3 rounded border border-gray-500/40"
@@ -164,13 +156,10 @@ const AddProduct = () => {
             />
           </div>
           <div className="flex-1 flex flex-col gap-1 w-32">
-            <label className="text-base font-medium" htmlFor="offer-price">
-              Offer Price
-            </label>
+            <label className="text-base font-medium">Offer Price</label>
             <input
               onChange={(e) => SetOfferPrice(e.target.value)}
               value={offerPrice}
-              id="offer-price"
               type="number"
               placeholder="0"
               className="outline-none md:py-2.5 py-2 px-3 rounded border border-gray-500/40"
@@ -182,9 +171,17 @@ const AddProduct = () => {
         {/* Submit */}
         <button
           type="submit"
-          className="cursor-pointer px-8 py-2.5 bg-primary text-white font-medium rounded"
+          disabled={loading}
+          className={`
+            px-8 py-2.5 rounded font-medium text-white
+            flex items-center justify-center gap-2
+            ${loading ? "bg-primary/70 cursor-not-allowed" : "bg-primary"}
+          `}
         >
-          ADD
+          {loading && (
+            <span className="h-4 w-4 rounded-full border-2 border-white/40 border-t-white animate-spin" />
+          )}
+          {loading ? "Adding..." : "ADD"}
         </button>
       </form>
     </div>
