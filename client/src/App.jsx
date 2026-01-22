@@ -18,6 +18,7 @@ import AddProduct from './pages/Seller/AddProduct';
 import ProductsList from './pages/Seller/ProductsList'
 import Orders from './pages/Seller/Orders'
 import Loading from './components/Loading'
+import Contacts from './pages/Contacts'
 
 function App() {
   const isSellerPath = useLocation().pathname.includes("seller")
@@ -32,6 +33,7 @@ function App() {
       <div className={`${isSellerPath ? "" : "px-6 md:px-16 lg:px-24 xl:px-32"}`}>
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/contacts" element={<Contacts />} />
           <Route path="/products" element={<AllProducts />} />
           {/* Dynamic category route */}
           <Route path="/products/:category" element={<ProductCategory />} />
